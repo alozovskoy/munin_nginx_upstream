@@ -1,0 +1,27 @@
+#!/bin/bash
+#A.Lozovskoy, alozovskoy@gmail.com
+
+upCount=${count}
+
+case $1 in
+   config)
+        echo "graph_title NGINX upstream
+graph_category nginx
+graph_vlabel ${label-NGINX upstream connection count}
+$(for i in $(seq 1 "$upCount")
+do
+echo upstream"$i".label $(eval echo \$up"$i"Label)
+done)"
+        exit 0;;
+esac
+
+for min in {1..5}
+do
+	connections="$connections"$'\n'"$(grep `date -d -"$min"min '+%d/%b/%Y:%H:%M'` ${logfile})"
+done
+
+for i in $(seq 1 "$upCount")
+do
+	count=$(echo "$connections" | grep -c "$(eval echo \$up"$i"Regexp)")
+	echo upstream"$i".value $count
+done
